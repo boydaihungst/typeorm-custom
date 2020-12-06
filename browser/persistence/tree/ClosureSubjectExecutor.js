@@ -25,14 +25,15 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                     case 0:
                         closureJunctionInsertMap = {};
                         subject.metadata.closureJunctionTable.ancestorColumns.forEach(function (column) {
-                            closureJunctionInsertMap[column.databaseName] = subject.identifier;
+                            closureJunctionInsertMap[column.databaseName] =
+                                subject.identifier;
                         });
                         subject.metadata.closureJunctionTable.descendantColumns.forEach(function (column) {
-                            closureJunctionInsertMap[column.databaseName] = subject.identifier;
+                            closureJunctionInsertMap[column.databaseName] =
+                                subject.identifier;
                         });
                         // insert values into the closure junction table
-                        return [4 /*yield*/, this.queryRunner
-                                .manager
+                        return [4 /*yield*/, this.queryRunner.manager
                                 .createQueryBuilder()
                                 .insert()
                                 .into(subject.metadata.closureJunctionTable.tablePath)
@@ -44,8 +45,11 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                         // insert values into the closure junction table
                         _a.sent();
                         parent = subject.metadata.treeParentRelation.getEntityValue(subject.entity);
-                        if (!parent && subject.parentSubject && subject.parentSubject.entity) // if entity was attached via children
-                            parent = subject.parentSubject.insertedValueSet ? subject.parentSubject.insertedValueSet : subject.parentSubject.entity;
+                        if (!parent && subject.parentSubject && subject.parentSubject.entity)
+                            // if entity was attached via children
+                            parent = subject.parentSubject.insertedValueSet
+                                ? subject.parentSubject.insertedValueSet
+                                : subject.parentSubject.entity;
                         if (!parent) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.insertClosureEntry(subject, subject.entity, parent)];
                     case 2:
@@ -61,23 +65,27 @@ var ClosureSubjectExecutor = /** @class */ (function () {
      */
     ClosureSubjectExecutor.prototype.update = function (subject) {
         return __awaiter(this, void 0, void 0, function () {
-            var parent, entity, oldParent, oldParentId, parentId, escape, previousParent, hasPreviousParent, closureTable_1, ancestorColumnNames_1, descendantColumnNames_1, createSubQuery_1, parameters, _a, _b, column, queryParams_1, tableName, superAlias_1, subAlias_1, select, entityWhereCondition, parentWhereCondition;
+            var parent, entity, chilrens, oldParent, oldParentId, parentId, escape, previousParent, hasPreviousParent, closureTable_1, ancestorColumnNames_1, descendantColumnNames_1, createSubQuery_1, parameters, _a, _b, column, queryParams_1, tableName, superAlias_1, subAlias_1, select, entityWhereCondition, parentWhereCondition;
             var e_1, _c;
             var _this = this;
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
                         parent = subject.metadata.treeParentRelation.getEntityValue(subject.entity);
-                        if (!parent && subject.parentSubject && subject.parentSubject.entity) // if entity was attached via children
+                        if (!parent && subject.parentSubject && subject.parentSubject.entity)
+                            // if entity was attached via children
                             parent = subject.parentSubject.entity;
                         entity = subject.databaseEntity;
-                        if (!entity) // if entity was attached via children
-                            entity = subject.metadata.treeChildrenRelation.getEntityValue(parent).find(function (child) {
-                                return Object.entries(subject.identifier).every(function (_a) {
-                                    var _b = __read(_a, 2), key = _b[0], value = _b[1];
-                                    return child[key] === value;
+                        if (!entity) {
+                            chilrens = subject.metadata.treeChildrenRelation.getEntityValue(parent);
+                            if (!!chilrens)
+                                entity = chilrens.getEntityValue(parent).find(function (child) {
+                                    return Object.entries(subject.identifier).every(function (_a) {
+                                        var _b = __read(_a, 2), key = _b[0], value = _b[1];
+                                        return child[key] === value;
+                                    });
                                 });
-                            });
+                        }
                         // Exit if the parent or the entity where never set
                         if (entity === undefined || parent === undefined) {
                             return [2 /*return*/];
@@ -89,7 +97,9 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                         if (OrmUtils.compareIds(oldParentId, parentId)) {
                             return [2 /*return*/];
                         }
-                        escape = function (alias) { return _this.queryRunner.connection.driver.escape(alias); };
+                        escape = function (alias) {
+                            return _this.queryRunner.connection.driver.escape(alias);
+                        };
                         previousParent = subject.metadata.treeParentRelation.getEntityValue(entity);
                         hasPreviousParent = subject.metadata.primaryColumns.some(function (column) { return column.getEntityValue(previousParent) != null; });
                         if (!hasPreviousParent) return [3 /*break*/, 4];
@@ -103,7 +113,8 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                         createSubQuery_1 = function (qb, alias) {
                             var e_2, _a;
                             var subAlias = "sub" + alias;
-                            var subSelect = qb.createQueryBuilder()
+                            var subSelect = qb
+                                .createQueryBuilder()
                                 .select(descendantColumnNames_1.join(", "))
                                 .from(closureTable_1.tablePath, subAlias);
                             try {
@@ -120,7 +131,8 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                                 }
                                 finally { if (e_2) throw e_2.error; }
                             }
-                            return qb.createQueryBuilder()
+                            return qb
+                                .createQueryBuilder()
                                 .select(descendantColumnNames_1.join(", "))
                                 .from("(" + subSelect.getQuery() + ")", alias)
                                 .setParameters(subSelect.getParameters())
@@ -140,13 +152,16 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                             }
                             finally { if (e_1) throw e_1.error; }
                         }
-                        return [4 /*yield*/, this.queryRunner
-                                .manager
+                        return [4 /*yield*/, this.queryRunner.manager
                                 .createQueryBuilder()
                                 .delete()
                                 .from(closureTable_1.tablePath)
-                                .where(function (qb) { return "(" + descendantColumnNames_1.join(", ") + ") IN (" + createSubQuery_1(qb, "descendant") + ")"; })
-                                .andWhere(function (qb) { return "(" + ancestorColumnNames_1.join(", ") + ") NOT IN (" + createSubQuery_1(qb, "ancestor") + ")"; })
+                                .where(function (qb) {
+                                return "(" + descendantColumnNames_1.join(", ") + ") IN (" + createSubQuery_1(qb, "descendant") + ")";
+                            })
+                                .andWhere(function (qb) {
+                                return "(" + ancestorColumnNames_1.join(", ") + ") NOT IN (" + createSubQuery_1(qb, "ancestor") + ")";
+                            })
                                 .setParameters(parameters)
                                 .execute()];
                     case 1:
@@ -200,7 +215,9 @@ var ClosureSubjectExecutor = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        escape = function (alias) { return _this.queryRunner.connection.driver.escape(alias); };
+                        escape = function (alias) {
+                            return _this.queryRunner.connection.driver.escape(alias);
+                        };
                         tableName = this.getTableName(subject.metadata.closureJunctionTable.tablePath);
                         queryParams = [];
                         ancestorColumnNames = subject.metadata.closureJunctionTable.ancestorColumns.map(function (column) {
@@ -210,7 +227,9 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                             return escape(column.databaseName);
                         });
                         childEntityIds1 = subject.metadata.primaryColumns.map(function (column) {
-                            queryParams.push(column.getEntityValue(subject.insertedValueSet ? subject.insertedValueSet : entity));
+                            queryParams.push(column.getEntityValue(subject.insertedValueSet
+                                ? subject.insertedValueSet
+                                : entity));
                             return _this.queryRunner.connection.driver.createParameter("child_entity_" + column.databaseName, queryParams.length - 1);
                         });
                         whereCondition = subject.metadata.primaryColumns.map(function (column) {
@@ -237,11 +256,15 @@ var ClosureSubjectExecutor = /** @class */ (function () {
      */
     ClosureSubjectExecutor.prototype.getTableName = function (tablePath) {
         var _this = this;
-        return tablePath.split(".")
+        return tablePath
+            .split(".")
             .map(function (i) {
             // this condition need because in SQL Server driver when custom database name was specified and schema name was not, we got `dbName..tableName` string, and doesn't need to escape middle empty string
-            return i === "" ? i : _this.queryRunner.connection.driver.escape(i);
-        }).join(".");
+            return i === ""
+                ? i
+                : _this.queryRunner.connection.driver.escape(i);
+        })
+            .join(".");
     };
     return ClosureSubjectExecutor;
 }());
