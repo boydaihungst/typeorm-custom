@@ -103,20 +103,21 @@ var ClosureJunctionEntityMetadataBuilder = /** @class */ (function () {
             }));
         }
         // create junction table foreign keys
+        // Note: There is only a single CASCADE because of mssql not supporting multi cascade paths
+        //       However this should not cause any problems since the both foreign keys point to the same column on the same table
         entityMetadata.foreignKeys = [
             new ForeignKeyMetadata_1.ForeignKeyMetadata({
                 entityMetadata: entityMetadata,
                 referencedEntityMetadata: parentClosureEntityMetadata,
                 columns: [entityMetadata.ownColumns[0]],
                 referencedColumns: parentClosureEntityMetadata.primaryColumns,
-                onDelete: "CASCADE" // todo: does not work in mssql for some reason
+                onDelete: "CASCADE"
             }),
             new ForeignKeyMetadata_1.ForeignKeyMetadata({
                 entityMetadata: entityMetadata,
                 referencedEntityMetadata: parentClosureEntityMetadata,
                 columns: [entityMetadata.ownColumns[1]],
                 referencedColumns: parentClosureEntityMetadata.primaryColumns,
-                onDelete: "CASCADE" // todo: does not work in mssql for some reason
             }),
         ];
         return entityMetadata;

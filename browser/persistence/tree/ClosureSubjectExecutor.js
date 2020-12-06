@@ -92,7 +92,7 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                         escape = function (alias) { return _this.queryRunner.connection.driver.escape(alias); };
                         previousParent = subject.metadata.treeParentRelation.getEntityValue(entity);
                         hasPreviousParent = subject.metadata.primaryColumns.some(function (column) { return column.getEntityValue(previousParent) != null; });
-                        if (!hasPreviousParent) return [3 /*break*/, 2];
+                        if (!hasPreviousParent) return [3 /*break*/, 4];
                         closureTable_1 = subject.metadata.closureJunctionTable;
                         ancestorColumnNames_1 = closureTable_1.ancestorColumns.map(function (column) {
                             return escape(column.databaseName);
@@ -151,44 +151,41 @@ var ClosureSubjectExecutor = /** @class */ (function () {
                                 .execute()];
                     case 1:
                         _d.sent();
-                        /**
-                         * Only insert new parent if it exits
-                         *
-                         * This only happens if the entity becomes a root entity
-                         */
-                        if (parent) {
-                            queryParams_1 = [];
-                            tableName = this.getTableName(closureTable_1.tablePath);
-                            superAlias_1 = escape("supertree");
-                            subAlias_1 = escape("subtree");
-                            select = __spread(ancestorColumnNames_1.map(function (columnName) { return superAlias_1 + "." + columnName; }), descendantColumnNames_1.map(function (columnName) { return subAlias_1 + "." + columnName; }));
-                            entityWhereCondition = subject.metadata.primaryColumns.map(function (column) {
-                                var columnName = escape(column.databaseName + "_ancestor");
-                                var entityId = column.getEntityValue(entity);
-                                queryParams_1.push(entityId);
-                                var parameterName = _this.queryRunner.connection.driver.createParameter("entity_" + column.databaseName, queryParams_1.length - 1);
-                                return subAlias_1 + "." + columnName + " = " + parameterName;
-                            });
-                            parentWhereCondition = subject.metadata.primaryColumns.map(function (column) {
-                                var columnName = escape(column.databaseName + "_descendant");
-                                var parentId = column.getEntityValue(parent);
-                                if (!parentId)
-                                    throw new CannotAttachTreeChildrenEntityError(subject.metadata.name);
-                                queryParams_1.push(parentId);
-                                var parameterName = _this.queryRunner.connection.driver.createParameter("parent_entity_" + column.databaseName, queryParams_1.length - 1);
-                                return superAlias_1 + "." + columnName + " = " + parameterName;
-                            });
-                            this.queryRunner.query("INSERT INTO " + tableName + " (" + __spread(ancestorColumnNames_1, descendantColumnNames_1).join(", ") + ") " +
+                        if (!parent) return [3 /*break*/, 3];
+                        queryParams_1 = [];
+                        tableName = this.getTableName(closureTable_1.tablePath);
+                        superAlias_1 = escape("supertree");
+                        subAlias_1 = escape("subtree");
+                        select = __spread(ancestorColumnNames_1.map(function (columnName) { return superAlias_1 + "." + columnName; }), descendantColumnNames_1.map(function (columnName) { return subAlias_1 + "." + columnName; }));
+                        entityWhereCondition = subject.metadata.primaryColumns.map(function (column) {
+                            var columnName = escape(column.databaseName + "_ancestor");
+                            var entityId = column.getEntityValue(entity);
+                            queryParams_1.push(entityId);
+                            var parameterName = _this.queryRunner.connection.driver.createParameter("entity_" + column.databaseName, queryParams_1.length - 1);
+                            return subAlias_1 + "." + columnName + " = " + parameterName;
+                        });
+                        parentWhereCondition = subject.metadata.primaryColumns.map(function (column) {
+                            var columnName = escape(column.databaseName + "_descendant");
+                            var parentId = column.getEntityValue(parent);
+                            if (!parentId)
+                                throw new CannotAttachTreeChildrenEntityError(subject.metadata.name);
+                            queryParams_1.push(parentId);
+                            var parameterName = _this.queryRunner.connection.driver.createParameter("parent_entity_" + column.databaseName, queryParams_1.length - 1);
+                            return superAlias_1 + "." + columnName + " = " + parameterName;
+                        });
+                        return [4 /*yield*/, this.queryRunner.query("INSERT INTO " + tableName + " (" + __spread(ancestorColumnNames_1, descendantColumnNames_1).join(", ") + ") " +
                                 ("SELECT " + select.join(", ") + " ") +
                                 ("FROM " + tableName + " AS " + superAlias_1 + ", " + tableName + " AS " + subAlias_1 + " ") +
-                                ("WHERE " + __spread(entityWhereCondition, parentWhereCondition).join(" AND ")), queryParams_1);
-                        }
-                        return [3 /*break*/, 4];
-                    case 2: return [4 /*yield*/, this.insertClosureEntry(subject, entity, parent)];
-                    case 3:
+                                ("WHERE " + __spread(entityWhereCondition, parentWhereCondition).join(" AND ")), queryParams_1)];
+                    case 2:
                         _d.sent();
-                        _d.label = 4;
-                    case 4: return [2 /*return*/];
+                        _d.label = 3;
+                    case 3: return [3 /*break*/, 6];
+                    case 4: return [4 /*yield*/, this.insertClosureEntry(subject, entity, parent)];
+                    case 5:
+                        _d.sent();
+                        _d.label = 6;
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -197,31 +194,42 @@ var ClosureSubjectExecutor = /** @class */ (function () {
      * Inserts the rows into the closure table for a given entity
      */
     ClosureSubjectExecutor.prototype.insertClosureEntry = function (subject, entity, parent) {
-        var _this = this;
-        var escape = function (alias) { return _this.queryRunner.connection.driver.escape(alias); };
-        var tableName = this.getTableName(subject.metadata.closureJunctionTable.tablePath);
-        var queryParams = [];
-        var ancestorColumnNames = subject.metadata.closureJunctionTable.ancestorColumns.map(function (column) {
-            return escape(column.databaseName);
+        return __awaiter(this, void 0, void 0, function () {
+            var escape, tableName, queryParams, ancestorColumnNames, descendantColumnNames, childEntityIds1, whereCondition;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        escape = function (alias) { return _this.queryRunner.connection.driver.escape(alias); };
+                        tableName = this.getTableName(subject.metadata.closureJunctionTable.tablePath);
+                        queryParams = [];
+                        ancestorColumnNames = subject.metadata.closureJunctionTable.ancestorColumns.map(function (column) {
+                            return escape(column.databaseName);
+                        });
+                        descendantColumnNames = subject.metadata.closureJunctionTable.descendantColumns.map(function (column) {
+                            return escape(column.databaseName);
+                        });
+                        childEntityIds1 = subject.metadata.primaryColumns.map(function (column) {
+                            queryParams.push(column.getEntityValue(subject.insertedValueSet ? subject.insertedValueSet : entity));
+                            return _this.queryRunner.connection.driver.createParameter("child_entity_" + column.databaseName, queryParams.length - 1);
+                        });
+                        whereCondition = subject.metadata.primaryColumns.map(function (column) {
+                            var columnName = escape(column.databaseName + "_descendant");
+                            var parentId = column.getEntityValue(parent);
+                            if (!parentId)
+                                throw new CannotAttachTreeChildrenEntityError(subject.metadata.name);
+                            queryParams.push(parentId);
+                            var parameterName = _this.queryRunner.connection.driver.createParameter("parent_entity_" + column.databaseName, queryParams.length - 1);
+                            return columnName + " = " + parameterName;
+                        });
+                        return [4 /*yield*/, this.queryRunner.query("INSERT INTO " + tableName + " (" + __spread(ancestorColumnNames, descendantColumnNames).join(", ") + ") " +
+                                ("SELECT " + ancestorColumnNames.join(", ") + ", " + childEntityIds1.join(", ") + " FROM " + tableName + " WHERE " + whereCondition.join(" AND ")), queryParams)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
-        var descendantColumnNames = subject.metadata.closureJunctionTable.descendantColumns.map(function (column) {
-            return escape(column.databaseName);
-        });
-        var childEntityIds1 = subject.metadata.primaryColumns.map(function (column) {
-            queryParams.push(column.getEntityValue(subject.insertedValueSet ? subject.insertedValueSet : entity));
-            return _this.queryRunner.connection.driver.createParameter("child_entity_" + column.databaseName, queryParams.length - 1);
-        });
-        var whereCondition = subject.metadata.primaryColumns.map(function (column) {
-            var columnName = escape(column.databaseName + "_descendant");
-            var parentId = column.getEntityValue(parent);
-            if (!parentId)
-                throw new CannotAttachTreeChildrenEntityError(subject.metadata.name);
-            queryParams.push(parentId);
-            var parameterName = _this.queryRunner.connection.driver.createParameter("parent_entity_" + column.databaseName, queryParams.length - 1);
-            return columnName + " = " + parameterName;
-        });
-        this.queryRunner.query("INSERT INTO " + tableName + " (" + __spread(ancestorColumnNames, descendantColumnNames).join(", ") + ") " +
-            ("SELECT " + ancestorColumnNames.join(", ") + ", " + childEntityIds1.join(", ") + " FROM " + tableName + " WHERE " + whereCondition.join(" AND ")), queryParams);
     };
     /**
      * Gets escaped table name with schema name if SqlServer or Postgres driver used with custom
