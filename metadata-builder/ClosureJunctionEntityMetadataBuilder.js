@@ -118,7 +118,6 @@ var ClosureJunctionEntityMetadataBuilder = /** @class */ (function () {
                 referencedEntityMetadata: parentClosureEntityMetadata,
                 columns: [entityMetadata.ownColumns[1]],
                 referencedColumns: parentClosureEntityMetadata.primaryColumns,
-                onDelete: "CASCADE"
             }),
         ];
         return entityMetadata;
