@@ -584,19 +584,19 @@ var SubjectExecutor = /** @class */ (function () {
      */
     SubjectExecutor.prototype.executeRemoveOperations = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, groupedRemoveSubjects, groupedRemoveSubjectKeys, groupedRemoveSubjectKeys_1, groupedRemoveSubjectKeys_1_1, groupName, subjects, deleteMaps, manager, e_5_1;
-            var e_5, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var _a, groupedRemoveSubjects, groupedRemoveSubjectKeys, groupedRemoveSubjectKeys_1, groupedRemoveSubjectKeys_1_1, groupName, subjects, deleteMaps, manager, _b, e_5_1;
+            var e_5, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         _a = __read(this.groupBulkSubjects(this.removeSubjects, "delete"), 2), groupedRemoveSubjects = _a[0], groupedRemoveSubjectKeys = _a[1];
-                        _c.label = 1;
+                        _d.label = 1;
                     case 1:
-                        _c.trys.push([1, 10, 11, 12]);
+                        _d.trys.push([1, 13, 14, 15]);
                         groupedRemoveSubjectKeys_1 = __values(groupedRemoveSubjectKeys), groupedRemoveSubjectKeys_1_1 = groupedRemoveSubjectKeys_1.next();
-                        _c.label = 2;
+                        _d.label = 2;
                     case 2:
-                        if (!!groupedRemoveSubjectKeys_1_1.done) return [3 /*break*/, 9];
+                        if (!!groupedRemoveSubjectKeys_1_1.done) return [3 /*break*/, 12];
                         groupName = groupedRemoveSubjectKeys_1_1.value;
                         subjects = groupedRemoveSubjects[groupName];
                         deleteMaps = subjects.map(function (subject) {
@@ -608,15 +608,24 @@ var SubjectExecutor = /** @class */ (function () {
                         manager = this.queryRunner.manager;
                         return [4 /*yield*/, manager.delete(subjects[0].metadata.target, deleteMaps)];
                     case 3:
-                        _c.sent();
-                        return [3 /*break*/, 8];
+                        _d.sent();
+                        return [3 /*break*/, 11];
                     case 4:
-                        if (!(subjects[0].metadata.treeType === "nested-set")) return [3 /*break*/, 6];
-                        return [4 /*yield*/, new NestedSetSubjectExecutor(this.queryRunner).remove(subjects)];
-                    case 5:
-                        _c.sent();
-                        _c.label = 6;
-                    case 6: 
+                        _b = subjects[0].metadata.treeType;
+                        switch (_b) {
+                            case "nested-set": return [3 /*break*/, 5];
+                            case "closure-table": return [3 /*break*/, 7];
+                        }
+                        return [3 /*break*/, 9];
+                    case 5: return [4 /*yield*/, new NestedSetSubjectExecutor(this.queryRunner).remove(subjects)];
+                    case 6:
+                        _d.sent();
+                        return [3 /*break*/, 9];
+                    case 7: return [4 /*yield*/, new ClosureSubjectExecutor(this.queryRunner).remove(subjects)];
+                    case 8:
+                        _d.sent();
+                        return [3 /*break*/, 9];
+                    case 9: 
                     // here we execute our deletion query
                     // we don't need to specify entities and set update entity to true since the only thing query builder
                     // will do for use is a primary keys deletion which is handled by us later once persistence is finished
@@ -629,28 +638,28 @@ var SubjectExecutor = /** @class */ (function () {
                             .where(deleteMaps)
                             .callListeners(false)
                             .execute()];
-                    case 7:
+                    case 10:
                         // here we execute our deletion query
                         // we don't need to specify entities and set update entity to true since the only thing query builder
                         // will do for use is a primary keys deletion which is handled by us later once persistence is finished
                         // also, we disable listeners because we call them on our own in persistence layer
-                        _c.sent();
-                        _c.label = 8;
-                    case 8:
+                        _d.sent();
+                        _d.label = 11;
+                    case 11:
                         groupedRemoveSubjectKeys_1_1 = groupedRemoveSubjectKeys_1.next();
                         return [3 /*break*/, 2];
-                    case 9: return [3 /*break*/, 12];
-                    case 10:
-                        e_5_1 = _c.sent();
+                    case 12: return [3 /*break*/, 15];
+                    case 13:
+                        e_5_1 = _d.sent();
                         e_5 = { error: e_5_1 };
-                        return [3 /*break*/, 12];
-                    case 11:
+                        return [3 /*break*/, 15];
+                    case 14:
                         try {
-                            if (groupedRemoveSubjectKeys_1_1 && !groupedRemoveSubjectKeys_1_1.done && (_b = groupedRemoveSubjectKeys_1.return)) _b.call(groupedRemoveSubjectKeys_1);
+                            if (groupedRemoveSubjectKeys_1_1 && !groupedRemoveSubjectKeys_1_1.done && (_c = groupedRemoveSubjectKeys_1.return)) _c.call(groupedRemoveSubjectKeys_1);
                         }
                         finally { if (e_5) throw e_5.error; }
                         return [7 /*endfinally*/];
-                    case 12: return [2 /*return*/];
+                    case 15: return [2 /*return*/];
                 }
             });
         });

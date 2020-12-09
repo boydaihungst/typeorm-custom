@@ -1775,7 +1775,7 @@ var SqlServerQueryRunner = /** @class */ (function (_super) {
      */
     SqlServerQueryRunner.prototype.createForeignKey = function (tableOrName, foreignKey) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var table, _a, up, down;
+            var table, _a, metadata, up, down;
             return tslib_1.__generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -1788,6 +1788,14 @@ var SqlServerQueryRunner = /** @class */ (function (_super) {
                         _b.label = 3;
                     case 3:
                         table = _a;
+                        metadata = undefined;
+                        try {
+                            metadata = this.connection.getMetadata(table.name);
+                        }
+                        catch (err) { } // Ignore error and continue
+                        if (metadata && metadata.treeParentRelation && metadata.treeParentRelation.isTreeParent && metadata.foreignKeys.find(function (foreignKey) { return foreignKey.onDelete !== "NO ACTION"; })) {
+                            throw new Error("SqlServer does not support options in TreeParent.");
+                        }
                         // new FK may be passed without name. In this case we generate FK name manually.
                         if (!foreignKey.name)
                             foreignKey.name = this.connection.namingStrategy.foreignKeyName(table.name, foreignKey.columnNames, foreignKey.referencedTableName, foreignKey.referencedColumnNames);
