@@ -15,8 +15,8 @@ export declare class ClosureSubjectExecutor {
      */
     update(subject: Subject): Promise<void>;
     /**
-     * Executes operations when subject is being removed.
-     */
+    * Executes operations when subject is being removed.
+    */
     remove(subjects: Subject | Subject[]): Promise<void>;
     /**
      * Inserts the rows into the closure table for a given entity

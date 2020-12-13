@@ -66,7 +66,7 @@ var MaterializedPathSubjectExecutor = /** @class */ (function () {
                         if (!newParent && subject.parentSubject && subject.parentSubject.entity) // if entity was attached via children
                             newParent = subject.parentSubject.entity;
                         entity = subject.databaseEntity;
-                        if (!entity) // if entity was attached via children
+                        if (!entity && newParent) // if entity was attached via children
                             entity = subject.metadata.treeChildrenRelation.getEntityValue(newParent).find(function (child) {
                                 return Object.entries(subject.identifier).every(function (_a) {
                                     var _b = __read(_a, 2), key = _b[0], value = _b[1];

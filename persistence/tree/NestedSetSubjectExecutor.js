@@ -92,7 +92,7 @@ var NestedSetSubjectExecutor = /** @class */ (function () {
                         if (!parent && subject.parentSubject && subject.parentSubject.entity) // if entity was attached via children
                             parent = subject.parentSubject.entity;
                         entity = subject.databaseEntity;
-                        if (!entity) // if entity was attached via children
+                        if (!entity && parent) // if entity was attached via children
                             entity = subject.metadata.treeChildrenRelation.getEntityValue(parent).find(function (child) {
                                 return Object.entries(subject.identifier).every(function (_a) {
                                     var _b = tslib_1.__read(_a, 2), key = _b[0], value = _b[1];
